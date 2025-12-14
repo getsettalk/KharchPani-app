@@ -52,7 +52,6 @@ class JsonDataHelper(private val context: Context) {
                 return Json.decodeFromString<List<Expense>>(stringBuilder.toString())
             }
         } catch(e: Exception) {
-            // Log the error for debugging, but return an empty list to prevent a crash
             e.printStackTrace()
         }
         return emptyList()
@@ -63,8 +62,8 @@ class JsonDataHelper(private val context: Context) {
         val jsonString = Json.encodeToString(expenses)
         val contentResolver = context.contentResolver
         try {
-            // Use "wt" to truncate the file and overwrite it completely.
-            // This is the critical fix to prevent data corruption and loss.
+            // Use "wt" to TRUNCATE the file before writing.
+            // This is the critical fix to prevent data corruption.
             contentResolver.openFileDescriptor(file.uri, "wt")?.use {
                 FileOutputStream(it.fileDescriptor).use {
                     it.write(jsonString.toByteArray())

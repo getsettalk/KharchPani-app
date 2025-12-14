@@ -3,6 +3,7 @@ package com.india.kharchpani.ui.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.india.kharchpani.data.model.Expense
@@ -39,6 +40,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _filter = MutableStateFlow(Filter.ALL)
     val filter: StateFlow<Filter> = _filter.asStateFlow()
+
+    val selectedExpenses = mutableStateListOf<Expense>()
+    val isInSelectionMode: Boolean
+        get() = selectedExpenses.isNotEmpty()
+
+    fun toggleExpenseSelection(expense: Expense) {
+        val index = selectedExpenses.indexOfFirst { it.id == expense.id }
+        if (index >= 0) {
+            selectedExpenses.removeAt(index)
+        } else {
+            selectedExpenses.add(expense)
+        }
+    }
+
+    fun clearSelection() {
+        selectedExpenses.clear()
+    }
+
+    fun toggleSelectedExpensesPaidStatus() {
+        viewModelScope.launch {
+            val selectedIds = selectedExpenses.map { it.id }.toSet()
+            val updatedExpenses = allExpenses.map {
+                if (it.id in selectedIds) {
+                    it.copy(isPaid = !it.isPaid)
+                } else {
+                    it
+                }
+            }
+            directoryUri?.let { jsonDataHelper.writeExpenses(it, updatedExpenses) }
+            clearSelection()
+            loadExpenses()
+        }
+    }
 
     fun initialize(uri: Uri) {
         directoryUri = uri

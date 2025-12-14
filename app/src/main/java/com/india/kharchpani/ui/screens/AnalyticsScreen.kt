@@ -30,6 +30,10 @@ import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryOf
+import com.patrykandpatrick.vico.compose.component.textComponent
+import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
@@ -66,44 +70,88 @@ fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = vie
 
 @Composable
 private fun WeeklyChart(chartData: List<ChartData>) {
-    val chartEntryModel = ChartEntryModelProducer(chartData.mapIndexed { index, data -> entryOf(index, data.amount) })
-    val horizontalAxisValueFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-        chartData[value.toInt()].label
-    }
+    val chartEntryModel =
+        ChartEntryModelProducer(
+            chartData.mapIndexed { index, data ->
+                entryOf(index, data.amount)
+            }
+        )
+
+    val horizontalAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+            chartData[value.toInt()].label
+        }
+
+    val labelColor = MaterialTheme.colorScheme.onSurface
+
+    val axisLabelComponent = textComponent(
+        color = labelColor,
+        textSize = 12.sp
+    )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .padding(vertical = 8.dp)
     ) {
         Chart(
             chart = columnChart(),
             chartModelProducer = chartEntryModel,
-            startAxis = startAxis(),
-            bottomAxis = bottomAxis(valueFormatter = horizontalAxisValueFormatter),
+
+            startAxis = startAxis(
+                label = axisLabelComponent,
+
+
+            ),
+
+            bottomAxis = bottomAxis(
+                valueFormatter = horizontalAxisValueFormatter,
+                label = axisLabelComponent,
+
+
+            )
         )
     }
 }
 
 @Composable
 private fun MonthlyChart(chartData: List<ChartData>) {
-    val chartEntryModel = ChartEntryModelProducer(chartData.mapIndexed { index, data -> entryOf(index, data.amount) })
-    val horizontalAxisValueFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-        chartData[value.toInt()].label
-    }
+
+    val chartEntryModel = ChartEntryModelProducer(
+        chartData.mapIndexed { index, data ->
+            entryOf(index, data.amount)
+        }
+    )
+
+    val horizontalAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+            chartData.getOrNull(value.toInt())?.label ?: ""
+        }
+
+    val axisLabelComponent = textComponent(
+        color = MaterialTheme.colorScheme.onSurface,
+        textSize = 12.sp
+    )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .padding(vertical = 8.dp)
     ) {
         Chart(
-            chart = columnChart(),
+            chart = columnChart(), // ✅ DEFAULT ONLY
             chartModelProducer = chartEntryModel,
-            startAxis = startAxis(),
-            bottomAxis = bottomAxis(valueFormatter = horizontalAxisValueFormatter),
+
+            startAxis = startAxis(
+                label = axisLabelComponent
+            ),
+            bottomAxis = bottomAxis(
+                valueFormatter = horizontalAxisValueFormatter,
+                label = axisLabelComponent
+            )
         )
     }
 }
+

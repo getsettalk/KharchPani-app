@@ -10,5 +10,6 @@ data class Expense(
     val description: String,
     val amount: Double,
     val createdAt: Long,
-    val updatedAt: Long? = null
+    val updatedAt: Long? = null,
+    val isPaid: Boolean = false
 )

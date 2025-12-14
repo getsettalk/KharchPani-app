@@ -1,6 +1,6 @@
 package com.india.kharchpani.ui.screens
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,11 +34,11 @@ import com.india.kharchpani.ui.viewmodel.Filter
 import com.india.kharchpani.ui.viewmodel.HomeUiState
 import com.india.kharchpani.ui.viewmodel.MainViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier, 
-    navController: NavController, 
+    modifier: Modifier = Modifier,
+    navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,41 +52,43 @@ fun HomeScreen(
         }
         is HomeUiState.Success -> {
             Column(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        SummaryCard(title = "Today", amount = state.todayTotal, modifier = Modifier.weight(1f))
-                        SummaryCard(title = "Yesterday", amount = state.yesterdayTotal, modifier = Modifier.weight(1f))
+                if (!viewModel.isInSelectionMode) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SummaryCard(title = "Today", amount = state.todayTotal, modifier = Modifier.weight(1f))
+                            SummaryCard(title = "Yesterday", amount = state.yesterdayTotal, modifier = Modifier.weight(1f))
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SummaryCard(title = "This Week", amount = state.weeklyTotal, modifier = Modifier.weight(1f))
+                            SummaryCard(title = "This Month", amount = state.monthlyTotal, modifier = Modifier.weight(1f))
+                        }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        SummaryCard(title = "This Week", amount = state.weeklyTotal, modifier = Modifier.weight(1f))
-                        SummaryCard(title = "This Month", amount = state.monthlyTotal, modifier = Modifier.weight(1f))
-                    }
-                }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Filter.values().forEach { filter ->
-                        FilterChip(
-                            modifier = Modifier.weight(1f),
-                            selected = selectedFilter == filter,
-                            onClick = { viewModel.setFilter(filter) },
-                            label = { 
-                                Text(
-                                    text = filter.name.lowercase().replaceFirstChar { it.titlecase() },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Filter.values().forEach { filter ->
+                            FilterChip(
+                                modifier = Modifier.weight(1f),
+                                selected = selectedFilter == filter,
+                                onClick = { viewModel.setFilter(filter) },
+                                label = { 
+                                    Text(
+                                        text = filter.name.lowercase().replaceFirstChar { it.titlecase() },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                    selectedLabelColor = Color.White
                                 )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                selectedLabelColor = Color.White
                             )
-                        )
+                        }
                     }
                 }
 
@@ -101,8 +102,22 @@ fun HomeScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(state.expenses, key = { it.id }) { expense ->
                             ExpenseListItem(
-                                expense = expense, 
-                                onDoubleClick = { navController.navigate("add_edit_expense?expenseId=${expense.id}") }
+                                expense = expense,
+                                isSelected = viewModel.selectedExpenses.any { it.id == expense.id },
+                                isInSelectionMode = viewModel.isInSelectionMode,
+                                onClick = {
+                                    if (viewModel.isInSelectionMode) {
+                                        viewModel.toggleExpenseSelection(expense)
+                                    }
+                                },
+                                onLongClick = {
+                                    viewModel.toggleExpenseSelection(expense)
+                                },
+                                onDoubleClick = {
+                                    if (!viewModel.isInSelectionMode) {
+                                        navController.navigate("add_edit_expense?expenseId=${expense.id}")
+                                    }
+                                }
                             )
                         }
                     }
