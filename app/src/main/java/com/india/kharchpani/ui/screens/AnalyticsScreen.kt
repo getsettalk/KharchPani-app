@@ -26,7 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.india.kharchpani.ui.composables.KharchPaniTopAppBar
 import com.india.kharchpani.ui.viewmodel.ChartData
 import com.india.kharchpani.ui.viewmodel.HomeUiState
 import com.india.kharchpani.ui.viewmodel.MainViewModel
@@ -40,10 +42,11 @@ import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryOf
 
 @Composable
-fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel) {
+fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
+        topBar = { KharchPaniTopAppBar(title = "Analytics") },
         bottomBar = {
             BottomAppBar {
                 Row(

@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.india.kharchpani.ui.composables.KharchPaniTopAppBar
 import com.india.kharchpani.ui.viewmodel.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +44,7 @@ fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel 
     }
 
     Scaffold(
+        topBar = { KharchPaniTopAppBar(title = "Settings") },
         bottomBar = {
             BottomAppBar {
                 Row(

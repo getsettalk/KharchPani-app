@@ -20,7 +20,7 @@ class JsonDataHelper(private val context: Context) {
     private fun getExpensesFile(directoryUri: Uri): DocumentFile? {
         val directory = DocumentFile.fromTreeUri(context, directoryUri) ?: return null
         var file = directory.findFile(FILE_NAME)
-        if (file == null) {
+        if (file == null || !file.exists()) {
             file = directory.createFile(MIME_TYPE, FILE_NAME)
         }
         return file
@@ -30,30 +30,29 @@ class JsonDataHelper(private val context: Context) {
         return getExpensesFile(directoryUri)?.uri
     }
 
-    // For reading from the main directory URI
     fun readExpenses(directoryUri: Uri): List<Expense> {
         val file = getExpensesFile(directoryUri) ?: return emptyList()
         return readExpensesFromFile(file.uri)
     }
 
-    // For reading from a single file URI (for import)
     fun readExpensesFromFile(fileUri: Uri): List<Expense> {
         val contentResolver = context.contentResolver
         val stringBuilder = StringBuilder()
         try {
             contentResolver.openInputStream(fileUri)?.use {
                 BufferedReader(InputStreamReader(it)).use {
-                    var line = it.readLine()
-                    while (line != null) {
-                        stringBuilder.append(line)
+                    var line: String?
+                    do {
                         line = it.readLine()
-                    }
+                        if (line != null) stringBuilder.append(line)
+                    } while (line != null)
                 }
             }
             if (stringBuilder.isNotBlank()) {
                 return Json.decodeFromString<List<Expense>>(stringBuilder.toString())
             }
         } catch(e: Exception) {
+            // Log the error for debugging, but return an empty list to prevent a crash
             e.printStackTrace()
         }
         return emptyList()
@@ -64,7 +63,9 @@ class JsonDataHelper(private val context: Context) {
         val jsonString = Json.encodeToString(expenses)
         val contentResolver = context.contentResolver
         try {
-            contentResolver.openFileDescriptor(file.uri, "w")?.use {
+            // Use "wt" to truncate the file and overwrite it completely.
+            // This is the critical fix to prevent data corruption and loss.
+            contentResolver.openFileDescriptor(file.uri, "wt")?.use {
                 FileOutputStream(it.fileDescriptor).use {
                     it.write(jsonString.toByteArray())
                 }

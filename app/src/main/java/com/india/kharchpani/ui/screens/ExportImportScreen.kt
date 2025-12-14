@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.india.kharchpani.ui.composables.KharchPaniTopAppBar
 import com.india.kharchpani.ui.viewmodel.MainViewModel
 
 @Composable
@@ -81,6 +82,7 @@ fun ExportImportScreen(navController: NavController, viewModel: MainViewModel = 
     }
 
     Scaffold(
+        topBar = { KharchPaniTopAppBar(title = "Export & Import") },
         bottomBar = {
             BottomAppBar {
                 Row(

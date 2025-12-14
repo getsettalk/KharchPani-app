@@ -35,11 +35,15 @@ class AddEditExpenseViewModel(private val mainViewModel: MainViewModel) : ViewMo
     }
 
     fun onDescriptionChange(newDescription: String) {
-        description = newDescription
+        if (newDescription.length <= 100) {
+            description = newDescription
+        }
     }
 
     fun onAmountChange(newAmount: String) {
-        amount = newAmount
+        if (newAmount.length <= 12) {
+            amount = newAmount
+        }
     }
 
     fun onDateChange(newDate: LocalDate) {
@@ -48,8 +52,12 @@ class AddEditExpenseViewModel(private val mainViewModel: MainViewModel) : ViewMo
 
     fun saveExpense() {
         val amountAsDouble = amount.toDoubleOrNull()
-        if (description.isBlank() || amountAsDouble == null) {
-            _uiState.value = AddEditExpenseUiState.Error("Please fill all fields.")
+        if (description.isBlank()) {
+            _uiState.value = AddEditExpenseUiState.Error("Description cannot be empty.")
+            return
+        }
+        if (amountAsDouble == null || amountAsDouble <= 0) {
+            _uiState.value = AddEditExpenseUiState.Error("Please enter a valid amount.")
             return
         }
 

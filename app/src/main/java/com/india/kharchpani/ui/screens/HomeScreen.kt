@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.india.kharchpani.ui.composables.ExpenseListItem
+import com.india.kharchpani.ui.composables.KharchPaniTopAppBar
 import com.india.kharchpani.ui.composables.SummaryCard
 import com.india.kharchpani.ui.viewmodel.Filter
 import com.india.kharchpani.ui.viewmodel.HomeUiState
@@ -52,6 +53,7 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        topBar = { KharchPaniTopAppBar(title = "Home") },
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("add_edit_expense") }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Expense")
@@ -101,10 +103,11 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Filter.values().forEach { filter ->
                                 FilterChip(
+                                    modifier = Modifier.weight(1f),
                                     selected = selectedFilter == filter,
                                     onClick = { viewModel.setFilter(filter) },
                                     label = { Text(filter.name.lowercase().replaceFirstChar { it.titlecase() }) }
