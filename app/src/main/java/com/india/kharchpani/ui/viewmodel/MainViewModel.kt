@@ -22,6 +22,11 @@ enum class Filter { TODAY, WEEK, MONTH, ALL }
 
 data class ChartData(val label: String, val amount: Double)
 
+data class AdvancedSummaryData(
+    val averageDailySpend: Double = 0.0,
+    val monthOverMonthChange: Double = 0.0
+)
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val jsonDataHelper = JsonDataHelper(application)
@@ -103,15 +108,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     
                     val today = LocalDate.now()
 
-                    val todayTotal = calculateTodayTotal(allExpenses)
-                    val weeklyTotal = calculateWeeklyTotal(allExpenses)
-                    val monthlyTotal = calculateMonthlyTotal(allExpenses)
-
                     _uiState.value = HomeUiState.Success(
                         expenses = allExpenses,
-                        todayTotal = todayTotal,
-                        weeklyTotal = weeklyTotal,
-                        monthlyTotal = monthlyTotal,
+                        todayTotal = calculateTodayTotal(allExpenses, today),
+                        weeklyTotal = calculateWeeklyTotal(allExpenses, today),
+                        monthlyTotal = calculateMonthlyTotal(allExpenses, today),
+                        lastWeekTotal = calculateLastWeekTotal(allExpenses, today),
+                        currentYearTotal = calculateCurrentYearTotal(allExpenses, today),
+                        advancedSummaryData = calculateAdvancedSummaryData(allExpenses, today),
                         weeklyChartData = getWeeklyChartData(),
                         monthlyChartData = getMonthlyChartData()
                     )
@@ -151,13 +155,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return allExpenses.find { it.id == id }
     }
 
-    private fun calculateTodayTotal(expenses: List<Expense>): Double {
-        val today = LocalDate.now()
+    private fun calculateTodayTotal(expenses: List<Expense>, today: LocalDate): Double {
         return expenses.filter { safeParseDate(it.date)?.isEqual(today) == true }.sumOf { it.amount }
     }
 
-    private fun calculateWeeklyTotal(expenses: List<Expense>): Double {
-        val today = LocalDate.now()
+    private fun calculateWeeklyTotal(expenses: List<Expense>, today: LocalDate): Double {
         val startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
         val endOfWeek = startOfWeek.plusDays(6)
         return expenses
@@ -166,12 +168,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .sumOf { it.second.amount }
     }
 
-    private fun calculateMonthlyTotal(expenses: List<Expense>): Double {
-        val today = LocalDate.now()
+    private fun calculateLastWeekTotal(expenses: List<Expense>, today: LocalDate): Double {
+        val startOfLastWeek = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+        val endOfLastWeek = startOfLastWeek.plusDays(6)
+        return expenses
+            .mapNotNull { expense -> safeParseDate(expense.date)?.let { it to expense } }
+            .filter { (expenseDate, _) -> !expenseDate.isBefore(startOfLastWeek) && !expenseDate.isAfter(endOfLastWeek) }
+            .sumOf { it.second.amount }
+    }
+
+    private fun calculateMonthlyTotal(expenses: List<Expense>, today: LocalDate): Double {
         return expenses
             .mapNotNull { expense -> safeParseDate(expense.date)?.let { it to expense } }
             .filter { (expenseDate, _) -> expenseDate.month == today.month && expenseDate.year == today.year }
             .sumOf { it.second.amount }
+    }
+
+    private fun calculateCurrentYearTotal(expenses: List<Expense>, today: LocalDate): Double {
+        return expenses
+            .mapNotNull { expense -> safeParseDate(expense.date)?.let { it to expense } }
+            .filter { (expenseDate, _) -> expenseDate.year == today.year }
+            .sumOf { it.second.amount }
+    }
+
+    private fun calculateAdvancedSummaryData(expenses: List<Expense>, today: LocalDate): AdvancedSummaryData {
+        val currentMonthExpenses = expenses.filter { 
+            val date = safeParseDate(it.date)
+            date != null && date.month == today.month && date.year == today.year 
+        }
+        val lastMonthExpenses = expenses.filter { 
+            val date = safeParseDate(it.date)
+            val lastMonth = today.minusMonths(1)
+            date != null && date.month == lastMonth.month && date.year == lastMonth.year 
+        }
+
+        val averageDailySpend = if (currentMonthExpenses.isNotEmpty()) {
+            currentMonthExpenses.sumOf { it.amount } / today.dayOfMonth
+        } else {
+            0.0
+        }
+
+        val currentMonthTotal = currentMonthExpenses.sumOf { it.amount }
+        val lastMonthTotal = lastMonthExpenses.sumOf { it.amount }
+
+        val monthOverMonthChange = if (lastMonthTotal > 0) {
+            ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100
+        } else if (currentMonthTotal > 0) {
+            100.0
+        } else {
+            0.0
+        }
+
+        return AdvancedSummaryData(averageDailySpend, monthOverMonthChange)
     }
 
     fun addExpense(expense: Expense) {
@@ -231,6 +279,9 @@ sealed interface HomeUiState {
         val todayTotal: Double = 0.0,
         val weeklyTotal: Double = 0.0,
         val monthlyTotal: Double = 0.0,
+        val lastWeekTotal: Double = 0.0,
+        val currentYearTotal: Double = 0.0,
+        val advancedSummaryData: AdvancedSummaryData = AdvancedSummaryData(),
         val weeklyChartData: List<ChartData> = emptyList(),
         val monthlyChartData: List<ChartData> = emptyList()
     ) : HomeUiState

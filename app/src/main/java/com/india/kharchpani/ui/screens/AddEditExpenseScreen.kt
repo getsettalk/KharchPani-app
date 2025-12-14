@@ -15,8 +15,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -101,84 +99,78 @@ fun AddEditExpenseScreen(
         )
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .padding(16.dp)
-                .fillMaxSize()
-        ) {
-            OutlinedTextField(
-                value = viewModel.description,
-                onValueChange = { viewModel.onDescriptionChange(it) },
-                label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
-            )
+        OutlinedTextField(
+            value = viewModel.description,
+            onValueChange = { viewModel.onDescriptionChange(it) },
+            label = { Text("Description") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = viewModel.amount,
-                onValueChange = { viewModel.onAmountChange(it) },
-                label = { Text("Amount") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-            )
+        OutlinedTextField(
+            value = viewModel.amount,
+            onValueChange = { viewModel.onAmountChange(it) },
+            label = { Text("Amount") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedButton(onClick = { isDatePickerVisible = true }) {
-                Text(text = viewModel.date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-            }
+        OutlinedButton(onClick = { isDatePickerVisible = true }) {
+            Text(text = viewModel.date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+        }
 
-            if (isDatePickerVisible) {
-                DatePickerDialog(
-                    onDismissRequest = { isDatePickerVisible = false },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            datePickerState.selectedDateMillis?.let {
-                                viewModel.onDateChange(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate())
-                            }
-                            isDatePickerVisible = false
-                        }) {
-                            Text("OK")
+        if (isDatePickerVisible) {
+            DatePickerDialog(
+                onDismissRequest = { isDatePickerVisible = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        datePickerState.selectedDateMillis?.let {
+                            viewModel.onDateChange(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate())
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { isDatePickerVisible = false }) {
-                            Text("Cancel")
-                        }
+                        isDatePickerVisible = false
+                    }) {
+                        Text("OK")
                     }
-                ) {
-                    DatePicker(state = datePickerState)
+                },
+                dismissButton = {
+                    TextButton(onClick = { isDatePickerVisible = false }) {
+                        Text("Cancel")
+                    }
                 }
+            ) {
+                DatePicker(state = datePickerState)
             }
+        }
 
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
 
+        Button(
+            onClick = { viewModel.saveExpense() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (expenseId == null) "Save Expense" else "Update Expense")
+        }
+
+        if (expenseId != null) {
+            Spacer(modifier = Modifier.height(8.dp))
             Button(
-                onClick = { viewModel.saveExpense() },
+                onClick = { showDeleteConfirmation = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (expenseId == null) "Save Expense" else "Update Expense")
-            }
-
-            if (expenseId != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = { showDeleteConfirmation = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Delete Expense")
-                }
+                Text("Delete Expense")
             }
         }
     }
