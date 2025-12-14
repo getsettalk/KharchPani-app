@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -52,13 +55,13 @@ fun HomeScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        SummaryCard(title = "This Week", amount = state.weeklyTotal, modifier = Modifier.weight(1f))
-                        SummaryCard(title = "Last Week", amount = state.lastWeekTotal, modifier = Modifier.weight(1f))
+                        SummaryCard(title = "Today", amount = state.todayTotal, modifier = Modifier.weight(1f))
+                        SummaryCard(title = "Yesterday", amount = state.yesterdayTotal, modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        SummaryCard(title = "This Week", amount = state.weeklyTotal, modifier = Modifier.weight(1f))
                         SummaryCard(title = "This Month", amount = state.monthlyTotal, modifier = Modifier.weight(1f))
-                        SummaryCard(title = "This Year", amount = state.currentYearTotal, modifier = Modifier.weight(1f))
                     }
                 }
 
@@ -66,14 +69,24 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Filter.values().forEach { filter ->
                         FilterChip(
                             modifier = Modifier.weight(1f),
                             selected = selectedFilter == filter,
                             onClick = { viewModel.setFilter(filter) },
-                            label = { Text(filter.name.lowercase().replaceFirstChar { it.titlecase() }) }
+                            label = { 
+                                Text(
+                                    text = filter.name.lowercase().replaceFirstChar { it.titlecase() },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                selectedLabelColor = Color.White
+                            )
                         )
                     }
                 }

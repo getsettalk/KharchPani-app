@@ -111,6 +111,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     _uiState.value = HomeUiState.Success(
                         expenses = allExpenses,
                         todayTotal = calculateTodayTotal(allExpenses, today),
+                        yesterdayTotal = calculateYesterdayTotal(allExpenses, today),
                         weeklyTotal = calculateWeeklyTotal(allExpenses, today),
                         monthlyTotal = calculateMonthlyTotal(allExpenses, today),
                         lastWeekTotal = calculateLastWeekTotal(allExpenses, today),
@@ -157,6 +158,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun calculateTodayTotal(expenses: List<Expense>, today: LocalDate): Double {
         return expenses.filter { safeParseDate(it.date)?.isEqual(today) == true }.sumOf { it.amount }
+    }
+
+    private fun calculateYesterdayTotal(expenses: List<Expense>, today: LocalDate): Double {
+        val yesterday = today.minusDays(1)
+        return expenses.filter { safeParseDate(it.date)?.isEqual(yesterday) == true }.sumOf { it.amount }
     }
 
     private fun calculateWeeklyTotal(expenses: List<Expense>, today: LocalDate): Double {
@@ -277,6 +283,7 @@ sealed interface HomeUiState {
     data class Success(
         val expenses: List<Expense>,
         val todayTotal: Double = 0.0,
+        val yesterdayTotal: Double = 0.0,
         val weeklyTotal: Double = 0.0,
         val monthlyTotal: Double = 0.0,
         val lastWeekTotal: Double = 0.0,
