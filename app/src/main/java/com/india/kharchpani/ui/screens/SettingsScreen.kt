@@ -20,11 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.india.kharchpani.ui.viewmodel.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel = viewModel()) {
+fun SettingsScreen(navController: NavController, themeViewModel: com.india.kharchpani.ui.viewmodel.ThemeViewModel = viewModel()) {
     val currentTheme by themeViewModel.theme.collectAsState()
     val context = LocalContext.current
     val versionName = try {

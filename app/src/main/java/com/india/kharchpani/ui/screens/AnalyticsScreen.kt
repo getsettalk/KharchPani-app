@@ -1,9 +1,7 @@
 package com.india.kharchpani.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.india.kharchpani.ui.composables.AdvancedSummaryCard
-import com.india.kharchpani.ui.composables.SummaryCard
 import com.india.kharchpani.ui.viewmodel.ChartData
 import com.india.kharchpani.ui.viewmodel.HomeUiState
 import com.india.kharchpani.ui.viewmodel.MainViewModel
@@ -47,11 +44,6 @@ fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = vie
                     subtitle = "vs. last month",
                     percent = state.advancedSummaryData.monthOverMonthChange
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    SummaryCard(title = "Last Week", amount = state.lastWeekTotal, modifier = Modifier.weight(1f))
-                    SummaryCard(title = "Current Year", amount = state.currentYearTotal, modifier = Modifier.weight(1f))
-                }
                 Spacer(modifier = Modifier.height(16.dp))
                 if (state.weeklyChartData.isNotEmpty()) {
                     Text(text = "This Week's Expenses", style = MaterialTheme.typography.titleMedium)

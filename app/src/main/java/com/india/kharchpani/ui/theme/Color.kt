@@ -2,23 +2,22 @@ package com.india.kharchpani.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// New Light Theme Colors
-val md_theme_light_primary = Color(0xFF006A60)
-val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_secondary = Color(0xFF4A635F)
-val md_theme_light_tertiary = Color(0xFF47617A)
+// WhatsApp-like Green Theme - REFINED
 
-// New Dark Theme Colors
-val md_theme_dark_primary = Color(0xFF4DDAD0)
-val md_theme_dark_onPrimary = Color(0xFF003731)
-val md_theme_dark_secondary = Color(0xFFB1CCC6)
-val md_theme_dark_tertiary = Color(0xFFB1C9E6)
+// Light Theme Colors
+val md_theme_light_primary = Color(0xFF008069)       // Main green for app bars, buttons
+val md_theme_light_onPrimary = Color(0xFFFFFFFF)     // Text on top of the main green
+val md_theme_light_secondary = Color(0xFF128C7E)      // A slightly different green for accents
+val md_theme_light_tertiary = Color(0xFF075E54)       // A darker green for other accents
+val md_theme_light_background = Color(0xFFFFFFFF)    // Crisp, clean white background
+val md_theme_light_surface = Color(0xFFF0F0F0)       // A very light gray for cards
+val md_theme_light_onSurface = Color(0xFF1C1C1C)    // Text on top of surfaces
 
-// Original Colors (kept for reference, but can be removed)
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Dark Theme Colors
+val md_theme_dark_primary = Color(0xFF25D366)        // Bright green for dark mode primary elements
+val md_theme_dark_onPrimary = Color(0xFF000000)      // Text on top of the bright green
+val md_theme_dark_secondary = Color(0xFF075E54)      // A darker, secondary green
+val md_theme_dark_tertiary = Color(0xFF128C7E)       // A tertiary green accent
+val md_theme_dark_background = Color(0xFF1C1C1C)    // A softer, very dark gray background
+val md_theme_dark_surface = Color(0xFF242424)        // Surface for cards in dark mode
+val md_theme_dark_onSurface = Color(0xFFE4E4E4)      // Text on top of dark surfaces
