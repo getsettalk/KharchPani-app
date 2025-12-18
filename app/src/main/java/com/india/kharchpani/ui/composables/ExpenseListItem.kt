@@ -39,6 +39,8 @@ fun ExpenseListItem(
     val date = LocalDate.parse(expense.date, DateTimeFormatter.ISO_LOCAL_DATE)
     val formattedDate = date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
     val textDecoration = if (expense.isPaid) TextDecoration.LineThrough else TextDecoration.None
+    
+    // Applying a distinct background color for paid expenses
     val cardColors = if (expense.isPaid) {
         CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.1f))
     } else {

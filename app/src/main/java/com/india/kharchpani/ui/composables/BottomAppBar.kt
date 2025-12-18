@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.Settings
@@ -21,6 +22,7 @@ import androidx.navigation.NavController
 fun KharchPaniBottomAppBar(currentRoute: String?, navController: NavController) {
     val navItems = listOf(
         BottomNavItemData("home", Icons.Default.Home, "Home"),
+        BottomNavItemData("history", Icons.Default.History, "History"),
         BottomNavItemData("analytics", Icons.Default.Analytics, "Analytics"),
         BottomNavItemData("export_import", Icons.Default.ImportExport, "Export/Import"),
         BottomNavItemData("settings", Icons.Default.Settings, "Settings")
@@ -38,14 +40,8 @@ fun KharchPaniBottomAppBar(currentRoute: String?, navController: NavController) 
                     isSelected = currentRoute == item.route,
                     onClick = {
                         navController.navigate(item.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            // on the back stack as users select items
                             popUpTo(navController.graph.startDestinationId)
-                            // Avoid multiple copies of the same destination when
-                            // re-selecting the same item
                             launchSingleTop = true
-                            // Restore state when re-selecting a previously selected item
                             restoreState = true
                         }
                     }

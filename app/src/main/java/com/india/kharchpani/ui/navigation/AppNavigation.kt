@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import com.india.kharchpani.ui.composables.KharchPaniTopAppBar
 import com.india.kharchpani.ui.screens.AddEditExpenseScreen
 import com.india.kharchpani.ui.screens.AnalyticsScreen
 import com.india.kharchpani.ui.screens.ExportImportScreen
+import com.india.kharchpani.ui.screens.HistoryScreen
 import com.india.kharchpani.ui.screens.HomeScreen
 import com.india.kharchpani.ui.screens.SettingsScreen
 import com.india.kharchpani.ui.viewmodel.MainViewModel
@@ -35,6 +37,7 @@ fun AppNavigation(viewModel: MainViewModel) {
 
     val topBarTitles = mapOf(
         "home" to "KharchPani",
+        "history" to "Expense History",
         "analytics" to "Analytics",
         "export_import" to "Export & Import",
         "settings" to "Settings",
@@ -43,7 +46,7 @@ fun AppNavigation(viewModel: MainViewModel) {
 
     Scaffold(
         topBar = {
-            if (viewModel.isInSelectionMode) {
+            if (viewModel.isInSelectionMode && currentRoute in listOf("home", "history")) {
                 KharchPaniTopAppBar(
                     title = "${viewModel.selectedExpenses.size} selected",
                     canNavigateBack = true,
@@ -64,13 +67,16 @@ fun AppNavigation(viewModel: MainViewModel) {
         },
         floatingActionButton = {
             if (currentRoute == "home" && !viewModel.isInSelectionMode) {
-                FloatingActionButton(onClick = { navController.navigate("add_edit_expense") }) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("add_edit_expense") },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Expense")
                 }
             }
         },
         bottomBar = {
-            if (currentRoute in listOf("home", "analytics", "export_import", "settings") && !viewModel.isInSelectionMode) {
+            if (currentRoute in listOf("home", "history", "analytics", "export_import", "settings") && !viewModel.isInSelectionMode) {
                 KharchPaniBottomAppBar(
                     currentRoute = currentRoute,
                     navController = navController
@@ -85,6 +91,9 @@ fun AppNavigation(viewModel: MainViewModel) {
         ) {
             composable("home") {
                 HomeScreen(navController = navController, viewModel = viewModel)
+            }
+            composable("history") {
+                HistoryScreen(navController = navController, viewModel = viewModel)
             }
             composable(
                 route = "add_edit_expense?expenseId={expenseId}",

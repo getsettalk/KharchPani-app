@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -38,61 +43,102 @@ fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel 
         "N/A"
     }
     var showHindi by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     val tutorialEnglish = """
-    1. Add expenses from the Home screen using the '+' button.
-    2. Long-press an expense to enter selection mode.
-    3. Mark selected expenses as paid using the checkmark icon in the top bar.
-    4. Double-tap an expense to edit or delete it.
-    5. Use the bottom navigation to view analytics, export/import data, and change settings.
+    🌟 Mastering KharchPani
+
+    ✅  Marking Expenses as Paid 
+    1.   Long-Press : On the Home or History screen, long-press any expense to enter 'Selection Mode'.
+    2.   Select Multiple : Once in selection mode, tap other expenses to add them to your selection.
+    3.   Confirm Status : Tap the checkmark icon (Done) in the top bar. All selected items will now appear with a strikethrough and a subtle red tint, indicating they are paid.
+    4.   Undo/Un-mark : To mark items as unpaid again, repeat the process. The status will toggle back.
+
+    📝  Other Useful Tips 
+    -  Edit/Delete : Quickly double-tap any item to open the Edit screen.
+    -  Date Filters : Use the History tab to find expenses within a custom date range.
+    -  Backup : Use the 'Export & Import' tab to save your data as a JSON file.
     """
 
     val tutorialHindi = """
-    1. होम स्क्रीन पर '+' बटन का उपयोग करके खर्च जोड़ें।
-    2. चयन मोड में प्रवेश करने के लिए किसी खर्च पर लंबे समय तक दबाएं।
-    3. शीर्ष बार में चेकमार्क आइकन का उपयोग करके चयनित खर्चों को भुगतान के रूप में चिह्नित करें।
-    4. किसी खर्च को संपादित करने या हटाने के लिए उस पर डबल-टैप करें।
-    5. एनालिटिक्स देखने, डेटा निर्यात/आयात करने और सेटिंग्स बदलने के लिए नीचे नेविगेशन का उपयोग करें।
+    🌟  खर्चपानी (KharchPani) में महारत हासिल करें 
+
+    ✅  खर्च को 'Paid' (भुगतान किया गया) के रूप में चिह्नित करें 
+    1.   लंबे समय तक दबाएं (Long-Press) : होम या इतिहास स्क्रीन पर, 'सिलेक्शन मोड' में प्रवेश करने के लिए किसी भी खर्च पर लंबे समय तक दबाएं।
+    2.   एकाधिक चुनें : सिलेक्शन मोड में आने के बाद, अन्य खर्चों को चुनने के लिए उन पर टैप करें।
+    3.   स्थिति की पुष्टि करें : शीर्ष बार में चेकमार्क (Done) आइकन पर टैप करें। सभी चयनित आइटम अब स्ट्राइकथ्रू और हल्के लाल रंग के साथ दिखाई देंगे।
+    4.   अन-मार्क करें : आइटम को फिर से अनपेड के रूप में चिह्नित करने के लिए, प्रक्रिया को दोहराएं। स्थिति बदल जाएगी।
+
+    📝  अन्य उपयोगी सुझाव 
+    -  संपादित करें/हटाएं : किसी भी आइटम को संपादित करने या हटाने के लिए उस पर जल्दी से डबल-टैप करें।
+    -  तिथि फ़िल्टर : कस्टम तिथि सीमा के भीतर खर्च खोजने के लिए इतिहास (History) टैब का उपयोग करें।
+    -  बैकअप : अपने डेटा को JSON फ़ाइल के रूप में सहेजने के लिए 'एक्सपोर्ट और इंपोर्ट' टैब का उपयोग करें।
     """
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(scrollState)
     ) {
-        Text(text = "Theme", style = MaterialTheme.typography.titleMedium)
+        Text(text = "Theme Preference", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = currentTheme == "Light",
-                onClick = { themeViewModel.saveTheme("Light") },
-                label = { Text("Light") }
+            listOf("Light", "Dark", "System").forEach { theme ->
+                FilterChip(
+                    selected = currentTheme == theme,
+                    onClick = { themeViewModel.saveTheme(theme) },
+                    label = { Text(theme) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = "How to Use (Tutorial)", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(text = "English", style = MaterialTheme.typography.bodySmall)
+            Switch(
+                checked = showHindi,
+                onCheckedChange = { showHindi = it },
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
-            FilterChip(
-                selected = currentTheme == "Dark",
-                onClick = { themeViewModel.saveTheme("Dark") },
-                label = { Text("Dark") }
-            )
-            FilterChip(
-                selected = currentTheme == "System",
-                onClick = { themeViewModel.saveTheme("System") },
-                label = { Text("System") }
+            Text(text = "हिंदी", style = MaterialTheme.typography.bodySmall)
+        }
+        
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Text(
+                text = if (showHindi) tutorialHindi else tutorialEnglish,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(10.dp),
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Text(text = "App Version", style = MaterialTheme.typography.titleMedium)
-        Text(text = versionName ?: "N/A")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "How to Use", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.weight(1f))
-            Text("English")
-            Switch(checked = showHindi, onCheckedChange = { showHindi = it })
-            Text("हिंदी")
+        Text(text = "App Details", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = "Version", fontWeight = FontWeight.Bold)
+                Text(text = versionName ?: "N/A")
+            }
         }
-        Text(text = if (showHindi) tutorialHindi else tutorialEnglish, style = MaterialTheme.typography.bodyLarge)
+        
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

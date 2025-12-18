@@ -41,6 +41,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _filter = MutableStateFlow(Filter.ALL)
     val filter: StateFlow<Filter> = _filter.asStateFlow()
 
+    // History Screen State
+    private val _historyExpenses = MutableStateFlow<List<Expense>>(emptyList())
+    val historyExpenses: StateFlow<List<Expense>> = _historyExpenses.asStateFlow()
+
     val selectedExpenses = mutableStateListOf<Expense>()
     val isInSelectionMode: Boolean
         get() = selectedExpenses.isNotEmpty()
@@ -82,6 +86,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setFilter(filter: Filter) {
         _filter.value = filter
         applyFilter()
+    }
+
+    fun filterHistory(startDate: LocalDate?, endDate: LocalDate?) {
+        val filtered = if (startDate == null && endDate == null) {
+            allExpenses
+        } else if (endDate == null) {
+            allExpenses.filter { safeParseDate(it.date)?.isEqual(startDate) == true }
+        } else {
+            allExpenses.filter {
+                val d = safeParseDate(it.date)
+                d != null && !d.isBefore(startDate) && !d.isAfter(endDate)
+            }
+        }
+        _historyExpenses.value = filtered
     }
 
     fun getExpensesFileUri(): Uri? {
@@ -139,6 +157,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     allExpenses = jsonDataHelper.readExpenses(uri).sortedByDescending { expense ->
                         safeParseDate(expense.date)
                     }
+                    _historyExpenses.value = allExpenses
                     
                     val today = LocalDate.now()
 
@@ -154,7 +173,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         weeklyChartData = getWeeklyChartData(),
                         monthlyChartData = getMonthlyChartData()
                     )
-                    applyFilter() // Apply initial filter
+                    applyFilter()
                 } ?: run {
                     _uiState.value = HomeUiState.Error("Storage location not set.")
                 }
