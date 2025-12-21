@@ -1,7 +1,9 @@
 package com.india.kharchpani.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.india.kharchpani.ui.composables.AdvancedSummaryCard
+import com.india.kharchpani.ui.composables.SummaryCard
 import com.india.kharchpani.ui.viewmodel.ChartData
 import com.india.kharchpani.ui.viewmodel.HomeUiState
 import com.india.kharchpani.ui.viewmodel.MainViewModel
@@ -26,14 +30,11 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
+import com.patrykandpatrick.vico.compose.component.textComponent
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryOf
-import com.patrykandpatrick.vico.compose.component.textComponent
-import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
-import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
@@ -49,6 +50,25 @@ fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel = vie
                     percent = state.advancedSummaryData.monthOverMonthChange
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    SummaryCard(
+                        title = "Last Week",
+                        amount = state.lastWeekTotal,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        title = "This Year",
+                        amount = state.currentYearTotal,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 if (state.weeklyChartData.isNotEmpty()) {
                     Text(text = "This Week's Expenses", style = MaterialTheme.typography.titleMedium)
                     WeeklyChart(state.weeklyChartData)
@@ -79,7 +99,7 @@ private fun WeeklyChart(chartData: List<ChartData>) {
 
     val horizontalAxisValueFormatter =
         AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-            chartData[value.toInt()].label
+            chartData.getOrNull(value.toInt())?.label ?: ""
         }
 
     val labelColor = MaterialTheme.colorScheme.onSurface
@@ -98,18 +118,12 @@ private fun WeeklyChart(chartData: List<ChartData>) {
         Chart(
             chart = columnChart(),
             chartModelProducer = chartEntryModel,
-
             startAxis = startAxis(
                 label = axisLabelComponent,
-
-
             ),
-
             bottomAxis = bottomAxis(
                 valueFormatter = horizontalAxisValueFormatter,
                 label = axisLabelComponent,
-
-
             )
         )
     }
@@ -117,7 +131,6 @@ private fun WeeklyChart(chartData: List<ChartData>) {
 
 @Composable
 private fun MonthlyChart(chartData: List<ChartData>) {
-
     val chartEntryModel = ChartEntryModelProducer(
         chartData.mapIndexed { index, data ->
             entryOf(index, data.amount)
@@ -141,9 +154,8 @@ private fun MonthlyChart(chartData: List<ChartData>) {
             .padding(vertical = 8.dp)
     ) {
         Chart(
-            chart = columnChart(), // ✅ DEFAULT ONLY
+            chart = columnChart(),
             chartModelProducer = chartEntryModel,
-
             startAxis = startAxis(
                 label = axisLabelComponent
             ),
@@ -154,4 +166,3 @@ private fun MonthlyChart(chartData: List<ChartData>) {
         )
     }
 }
-

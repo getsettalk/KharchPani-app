@@ -46,34 +46,42 @@ fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel 
     val scrollState = rememberScrollState()
 
     val tutorialEnglish = """
-    🌟 Mastering KharchPani
+    🌟 Getting Started
+    • Add Expenses: Tap '+' on Home.
+    • Edit/Delete: Double-tap any item.
+    • Selection Mode: Long-press to select items.
+    • Mark Paid: Use the 'Done' icon in selection mode.
 
-    ✅  Marking Expenses as Paid 
-    1.   Long-Press : On the Home or History screen, long-press any expense to enter 'Selection Mode'.
-    2.   Select Multiple : Once in selection mode, tap other expenses to add them to your selection.
-    3.   Confirm Status : Tap the checkmark icon (Done) in the top bar. All selected items will now appear with a strikethrough and a subtle red tint, indicating they are paid.
-    4.   Undo/Un-mark : To mark items as unpaid again, repeat the process. The status will toggle back.
+    📊 Calculation Logic
+    • Week: Starts on Sunday and ends on Saturday.
+    • Last Week: Previous full Sunday-to-Saturday cycle.
+    • Month: From the 1st to the last day of current month.
+    • Year: From Jan 1st to Dec 31st of current year.
+    • Yesterday: Precisely the previous calendar day.
 
-    📝  Other Useful Tips 
-    -  Edit/Delete : Quickly double-tap any item to open the Edit screen.
-    -  Date Filters : Use the History tab to find expenses within a custom date range.
-    -  Backup : Use the 'Export & Import' tab to save your data as a JSON file.
-    """
+    🛡️ Data & Storage
+    • Offline Only: Data stays only on your device.
+    • Uninstall Protection: Data is stored in your chosen folder via SAF, so it survives app deletion.
+    """.trimIndent()
 
     val tutorialHindi = """
-    🌟  खर्चपानी (KharchPani) में महारत हासिल करें 
+    🌟 शुरुआत कैसे करें
+    • खर्च जोड़ें: होम पर '+' दबाएं।
+    • बदलें/हटाएं: किसी भी आइटम पर डबल-टैप करें।
+    • सिलेक्शन मोड: चुनने के लिए लंबे समय तक दबाएं।
+    • भुगतान चिह्नित करें: सिलेक्शन मोड में 'Done' आइकन का उपयोग करें।
 
-    ✅  खर्च को 'Paid' (भुगतान किया गया) के रूप में चिह्नित करें 
-    1.   लंबे समय तक दबाएं (Long-Press) : होम या इतिहास स्क्रीन पर, 'सिलेक्शन मोड' में प्रवेश करने के लिए किसी भी खर्च पर लंबे समय तक दबाएं।
-    2.   एकाधिक चुनें : सिलेक्शन मोड में आने के बाद, अन्य खर्चों को चुनने के लिए उन पर टैप करें।
-    3.   स्थिति की पुष्टि करें : शीर्ष बार में चेकमार्क (Done) आइकन पर टैप करें। सभी चयनित आइटम अब स्ट्राइकथ्रू और हल्के लाल रंग के साथ दिखाई देंगे।
-    4.   अन-मार्क करें : आइटम को फिर से अनपेड के रूप में चिह्नित करने के लिए, प्रक्रिया को दोहराएं। स्थिति बदल जाएगी।
+    📊 गणना पद्धति
+    • सप्ताह: रविवार से शुरू और शनिवार को समाप्त होता है।
+    • पिछला सप्ताह: पिछला पूरा रविवार-से-शनिवार चक्र।
+    • महीना: वर्तमान महीने की 1 तारीख से आखिरी दिन तक।
+    • वर्ष: वर्तमान वर्ष की 1 जनवरी से 31 दिसंबर तक।
+    • कल (Yesterday): ठीक पिछला कैलेंडर दिन।
 
-    📝  अन्य उपयोगी सुझाव 
-    -  संपादित करें/हटाएं : किसी भी आइटम को संपादित करने या हटाने के लिए उस पर जल्दी से डबल-टैप करें।
-    -  तिथि फ़िल्टर : कस्टम तिथि सीमा के भीतर खर्च खोजने के लिए इतिहास (History) टैब का उपयोग करें।
-    -  बैकअप : अपने डेटा को JSON फ़ाइल के रूप में सहेजने के लिए 'एक्सपोर्ट और इंपोर्ट' टैब का उपयोग करें।
-    """
+    🛡️ डेटा और स्टोरेज
+    • केवल ऑफलाइन: डेटा केवल आपके डिवाइस पर रहता है।
+    • अनइंस्टॉल सुरक्षा: डेटा आपके चुने हुए फोल्डर (SAF) में रहता है, इसलिए ऐप हटाने पर भी सुरक्षित रहता है।
+    """.trimIndent()
 
     Column(
         modifier = Modifier
@@ -95,7 +103,7 @@ fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel 
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(text = "How to Use (Tutorial)", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(text = "How it Works & Usage", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(12.dp))
         
         Row(
@@ -120,7 +128,7 @@ fun SettingsScreen(navController: NavController, themeViewModel: ThemeViewModel 
             Text(
                 text = if (showHindi) tutorialHindi else tutorialEnglish,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(16.dp),
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
             )
         }
