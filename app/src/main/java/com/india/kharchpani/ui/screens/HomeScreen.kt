@@ -1,8 +1,10 @@
 package com.india.kharchpani.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,6 +40,7 @@ import com.india.kharchpani.ui.composables.SummaryCard
 import com.india.kharchpani.ui.viewmodel.Filter
 import com.india.kharchpani.ui.viewmodel.HomeUiState
 import com.india.kharchpani.ui.viewmodel.MainViewModel
+import com.india.kharchpani.utils.formatCurrency
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -62,6 +66,7 @@ fun HomeScreen(
             }
 
             Column(modifier = Modifier.fillMaxSize()) {
+                // Show normal summary cards only when NOT in selection mode
                 if (!viewModel.isInSelectionMode) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -97,6 +102,35 @@ fun HomeScreen(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                                     selectedLabelColor = Color.White
                                 )
+                            )
+                        }
+                    }
+                } else {
+                    // NEW: Show Selected Total Info when in selection mode
+                    val selectedTotal = viewModel.selectedExpenses.sumOf { it.amount }
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        tonalElevation = 2.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${viewModel.selectedExpenses.size} items selected",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = "Total: ${formatCurrency(selectedTotal)}",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
