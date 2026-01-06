@@ -1,5 +1,9 @@
 package com.india.kharchpani.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,16 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.india.kharchpani.ui.composables.ExpenseListItem
 import com.india.kharchpani.ui.viewmodel.MainViewModel
+import com.india.kharchpani.utils.formatCurrency
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HistoryScreen(navController: NavController, viewModel: MainViewModel) {
     val expenses by viewModel.historyExpenses.collectAsState()
@@ -78,6 +84,10 @@ fun HistoryScreen(navController: NavController, viewModel: MainViewModel) {
         }
     }
 
+    val groupedExpenses = remember(expenses) {
+        expenses.groupBy { it.date }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -103,23 +113,52 @@ fun HistoryScreen(navController: NavController, viewModel: MainViewModel) {
         }
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(expenses, key = { it.id }) { expense ->
-                ExpenseListItem(
-                    expense = expense,
-                    isSelected = viewModel.selectedExpenses.any { it.id == expense.id },
-                    isInSelectionMode = viewModel.isInSelectionMode,
-                    onClick = {
-                        if (viewModel.isInSelectionMode) {
-                            viewModel.toggleExpenseSelection(expense)
-                        }
-                    },
-                    onLongClick = { viewModel.toggleExpenseSelection(expense) },
-                    onDoubleClick = {
-                        if (!viewModel.isInSelectionMode) {
-                            navController.navigate("add_edit_expense?expenseId=${expense.id}")
-                        }
+            groupedExpenses.forEach { (dateString, expensesForDate) ->
+                stickyHeader {
+                    val date = LocalDate.parse(dateString)
+                    val formattedDate = date.format(DateTimeFormatter.ofPattern("EEEE, dd-MM-yyyy"))
+                    val dailyTotal = expensesForDate.sumOf { it.amount }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f))
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = formattedDate,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Total: ${formatCurrency(dailyTotal)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
-                )
+                }
+                items(expensesForDate, key = { it.id }) { expense ->
+                    ExpenseListItem(
+                        expense = expense,
+                        isSelected = viewModel.selectedExpenses.any { it.id == expense.id },
+                        isInSelectionMode = viewModel.isInSelectionMode,
+                        onClick = {
+                            if (viewModel.isInSelectionMode) {
+                                viewModel.toggleExpenseSelection(expense)
+                            }
+                        },
+                        onLongClick = { viewModel.toggleExpenseSelection(expense) },
+                        onDoubleClick = {
+                            if (!viewModel.isInSelectionMode) {
+                                navController.navigate("add_edit_expense?expenseId=${expense.id}")
+                            }
+                        }
+                    )
+                }
             }
         }
     }
